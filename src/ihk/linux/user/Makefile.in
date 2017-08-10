@@ -21,10 +21,10 @@ libihk.so:  ihklib.c ihklib.h
 	${CC} ${CFLAGS} -shared -fPIC -lpthread -o $@ $<
 
 ihkconfig: ihkconfig.c
-	${CC} ${CFLAGS} -o $@ $< -L. -lihk -lbfd -Wl,-rpath=$(LIBDIR)
+	${CC} ${CFLAGS} -o $@ $< -L. -lihk -lbfd -Wl,-rpath=$(LIBDIR) -pthread
 
 ihkosctl: ihkosctl.c
-	${CC} ${CFLAGS} -o $@ $< -L. -lihk -lbfd -Wl,-rpath=$(LIBDIR)
+	${CC} ${CFLAGS} -o $@ $< -L. -lihk -lbfd -Wl,-rpath=$(LIBDIR) -pthread
 
 %: %.c
 	${CC} ${CFLAGS} -o $@ $< ${LIBS}

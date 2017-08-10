@@ -1,0 +1,69 @@
+IHKDIR=$(IHKBASE)/$(TARGETDIR)
+OBJS = init.o mem.o debug.o mikc.o listeners.o ap.o syscall.o cls.o host.o
+OBJS += process.o copy.o waitq.o futex.o timer.o plist.o fileobj.o
+DEPSRCS=$(wildcard $(SRC)/*.c)
+
+CFLAGS += -I$(SRC)/include -D__KERNEL__
+CFLAGS += -DKNC_MAP_MICPA $(EXTRA_CFLAGS)
+
+ifeq ("$(DCFA_MODE)", "kmod")
+CFLAGS += -DDCFA_RUN
+else
+CFLAGS += -DDCFA_KMOD
+endif
+ 
+LDFLAGS += -e arch_start
+IHKOBJ = ihk/ihk.o
+
+include $(SRC)/config/config.$(TARGET)
+include $(IHKBASE)/Makefile.common
+
+SUBCMD_OPTS = TARGET=$(TARGET) O=$(CURDIR)/ihk CC=$(CC) LD=$(LD) SRC=$(SRC)
+
+OBJDUMP ?= objdump
+OBJCOPY ?= objcopy
+
+ld_kern_cmd_base = $(LD) $(LDFLAGS) -o $@.elf $^
+mkimage_cmd_base = [ -f $(SRC)/script/mkimage.$(TARGET) ] && CC=$(CC) LD=$(LD) LDFLAGS="$(LDFLAGS_MKIMAGE)" OBJDUMP=$(OBJDUMP) OBJCOPY=$(OBJCOPY) sh $(SRC)/script/mkimage.$(TARGET) '$@.elf' '$@' '$(SRC)' || cp $@.elf $@
+
+ld_kern_cmd = $(call echo_cmd,LDKERN,$@)$(ld_kern_cmd_base)
+mkimage_cmd = $(call echo_cmd,MKIMAGE,$@)$(mkimage_cmd_base)
+
+P_OBJ ?= ./a.out
+
+all: kernel.img
+
+kernel.img: $(OBJS) $(IHKOBJ) $(EXTRA_OBJS)
+	$(ld_kern_cmd)
+	$(mkimage_cmd)
+
+kobj: depend $(KERNEL_OBJ)
+	
+$(KERNEL_OBJ): $(OBJS) $(IHKOBJ)
+	@echo '       ' [with] $^
+	$(ld_cmd)
+	
+umod_clean:
+	$(rm_cmd) $(OBJS) $(IHKOBJ) kernel.img kernel.img.elf Makefile.dep
+	@$(submake) -C $(IHKBASE) $(SUBCMD_OPTS) clean
+
+kmod_clean:
+	$(rm_cmd) $(OBJS) $(IHKOBJ) $(KERNEL_OBJ) Makefile.dep
+	@$(submake) -C $(IHKBASE) $(SUBCMD_OPTS) clean
+	
+depend: Makefile.dep
+
+Makefile.dep:
+	$(call dep_cmd,$(DEPSRCS))
+
+$(IHKOBJ): FORCE
+	@mkdir -p $(dir $(IHKOBJ))
+	$(call echo_cmd,BUILD IHK,$(TARGET))$(submake) -C $(IHKBASE) $(SUBCMD_OPTS) prepare
+	$(call echo_cmd,BUILD IHK,$(TARGET))$(submake) -C $(IHKBASE) $(SUBCMD_OPTS)
+
+%.o: $(SRC)/%.c
+	$(cc_cmd)
+
+FORCE:
+
+-include Makefile.dep

@@ -1,0 +1,27 @@
+KDIR ?= @KDIR@
+ARCH ?= @ARCH@
+src = @abs_srcdir@
+KMODDIR=@KMODDIR@
+BINDIR=@BINDIR@
+IHK_BASE=$(src)/../../../../ihk
+
+obj-m += mcctrl.o
+
+ccflags-y := -I$(IHK_BASE)/linux/include -I$(IHK_BASE)/linux/include/ihk/arch/$(ARCH) -I$(IHK_BASE)/ikc/include -I$(IHK_BASE)/ikc/include/ikc/arch/$(ARCH) -I$(IHK_BASE)/include -I$(IHK_BASE)/include/arch/$(ARCH) -I$(src)/../../include -mcmodel=kernel -mno-red-zone -DMCEXEC_PATH=\"$(BINDIR)/mcexec\" -I@abs_builddir@
+
+mcctrl-y := driver.o control.o ikc.o syscall.o procfs.o binfmt_mcexec.o
+mcctrl-y += sysfs.o sysfs_files.o arch/$(ARCH)/archdeps.o
+
+KBUILD_EXTRA_SYMBOLS = @abs_builddir@/../../../../ihk/linux/core/Module.symvers
+
+.PHONY: clean install modules
+
+modules:
+	$(MAKE) -C $(KDIR) M=$(PWD) SUBDIRS=$(PWD) ARCH=$(ARCH) modules
+
+clean:
+	$(RM) .*.cmd *.mod.c *.o *.ko* Module.symvers modules.order -r .tmp*
+
+install:
+	mkdir -p -m 755 $(KMODDIR)
+	install -m 644 mcctrl.ko $(KMODDIR)

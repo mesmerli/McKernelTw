@@ -1,0 +1,1 @@
+LDFLAGS += -T $(SRC)/config/smp-x86.lds

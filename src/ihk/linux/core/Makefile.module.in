@@ -1,0 +1,24 @@
+KDIR ?= @KDIR@
+ARCH ?= @ARCH@
+src = @abs_srcdir@
+KMODDIR=@KMODDIR@
+
+obj-m += ihk.o
+
+ccflags-y := -I$(src)/../include -I$(src)/../include/ihk/arch/$(ARCH) -I$(src)/../../ikc/include
+
+ihk-y = host_driver.o mem_alloc.o mm.o mikc.o
+ihk-y += ../../ikc/linux.o ../../ikc/master.o ../../ikc/queue.o
+
+
+.PHONY: clean install modules
+
+modules:
+	$(MAKE) -C $(KDIR) M=$(PWD) SUBDIRS=$(PWD) ARCH=$(ARCH) modules
+
+clean:
+	$(RM) .*.cmd *.mod.c *.o *.ko* Module.symvers modules.order -r .tmp*
+
+install:
+	mkdir -p -m 755 $(KMODDIR)
+	install -m 644 ihk.ko $(KMODDIR)

@@ -1,0 +1,8 @@
+config IHK
+	bool "Enable Accelerator Abstraction Layer"
+	default y
+
+config IHK_DEBUG
+	bool "Enable debug output for IHK"
+    depends on IHK
+	default n

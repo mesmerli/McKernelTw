@@ -1,0 +1,33 @@
+CFLAGS += @CFLAGS@
+CFLAGS += -Wall -nostdinc -isystem $(shell $(CC) -print-file-name=include) -O2 -g
+CFLAGS += -I$(IHKBASE)/$(TARGETDIR)/include -Wno-unused-function -I$(IHKBASE)/../ikc/include
+CFLAGS += -DIHK_OS_MANYCORE
+
+TARGETDIR = $(shell echo $(TARGET) | sed "s/-/\//")
+
+-include $(IHKBASE)/$(TARGETDIR)/Makefile.config
+
+CFLAGS += -I$(SRC)/../lib/include -I$(SRC)/../arch/$(IHKARCH)/kernel/include
+CFLAGS += -I$(IHKBASE)/$(TARGETDIR)/include
+
+O ?= .
+
+ifeq ($(V),1)
+echo_cmd = 
+submake = make
+else
+echo_cmd = @echo ' ($(TARGET))' $1 $(ECHO_SUFFIX) $2; 
+submake = make --no-print-directory
+endif
+
+cc_cmd = $(call echo_cmd,CC,$<)$(CC) $(CFLAGS) -c -o $@ $<
+ld_cmd = $(call echo_cmd,LD,$@)$(LD) $(LDFLAGS) -r -o $@ $^
+dep_cmd = $(call echo_cmd,DEPEND,)$(CC) $(CFLAGS) -MM $1 > $@
+rm_cmd = $(call echo_cmd,CLEAN,)$(RM)
+
+define make_implicit_src
+$$(O)/%.o: $1/%.c
+	$$(cc_cmd)
+$$(O)/%.o: $1/%.S
+	$$(cc_cmd)
+endef

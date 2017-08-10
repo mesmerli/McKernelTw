@@ -1,0 +1,129 @@
+This is a snapshot of our research and development effort that includes
+the following software:
+ - IHK: Interface for Heterogeneous Kernels
+ - McKernel: Lightweight kernel for HPC on manycore systems
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(0) User mailing list
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+mckernel-users@pccluster.org is the user mailing list.
+Please visit the following URL to subscribe this mailing list:
+   http://www.pccluster.org/mailman/listinfo/mckernel-users
+If you have any questions, please contact us through this mailing list.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(1) Platform
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+We have tested McKernel on the following combinations of OS distribution and
+platform:
+   - CentOS 7.2 and 7.3 minimal running on Intel Xeon
+   - CentOS 7.2 and 7.3 minimal running on VMware
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(2) Installation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+1) CentOS 7.2 running on Intel Xeon processor
+    Download "mckernel-1.2.0.tar.gz" file and unpack using tar xzf <filename>,
+    e.g.
+
+    $ wget http://www.pccluster.org/ja/mckernel/mckernel-1.2.0.tar.gz
+    $ tar xzf mckernel-1.2.0.tar.gz
+
+    ${TOP} variable denotes the "mckernel-1.2.0" directory in the followings.
+
+    Build IHK and McKernel:
+    For building by yourself you will need to go through the following steps.
+
+  Step 1) Change Linux settings
+    In the following instructions, log in as the root user or switch to root 
+    user with sudo by typing in a terminal
+
+    $ sudo su -
+
+    Disable irqbalance:
+
+    # systemctl disable irqbalance
+
+    Disable SELinux:
+
+    # vi /etc/selinux/config
+    change to SELINUX=disabled
+
+  Step 2) Reboot
+    Reboot the host machine:
+
+    $ sudo reboot
+
+  Step 3) Prepare packages, kernel function table
+    Perform the following if kernel-devel package isn't installed.
+
+    $ sudo yum install kernel-devel-`uname -r`
+
+    Perform the following if /usr/src/kernels/`uname -r` doesn't exist
+
+    $ sudo ln -s /usr/src/kernels/<longer kernel version> \
+      /usr/src/kernels/`uname -r`
+
+    Perform the following to make sure that the
+    /lib/modules/`uname -r`/build symlink points to /usr/src/kernels/`uname -r`
+
+    $ ls -ld /lib/modules/`uname -r`/build
+
+    Perform the following to grant read permission to the System.map
+    file of your kernel version:
+
+    $ sudo chmod a+r /boot/System.map-`uname -r`
+
+  Step 3) Configure, Compile and Install
+    Assume the ${TOP} variable denotes the "mckernel-1.2.0" directory.
+    Run the following command when doing automatically with our script.
+
+    $ config_and_build_smp_x86.sh ${TOP} ${TOP}/build ${TOP}/install
+
+    Or follow the following steps when doing manually.
+    First, execute the following commands to create the directory
+    layout.
+
+    $ export TOP=${HOME}/mckernel-1.2.0
+    $ cd ${TOP}
+    $ mkdir install
+
+    Second, run the configuration scripts from the source directories:
+
+    $ cd ${TOP}/src/ihk
+    $ ./configure --with-target=smp-x86 --prefix=${TOP}/install
+    $ cd ${TOP}/src/mckernel
+    $ ./configure --with-target=smp-x86 --prefix=${TOP}/install
+
+    Third, compile and install IHK and McKernel:
+
+    $ cd ${TOP}/src/ihk
+    $ make && make install
+    $ cd ${TOP}/src/mckernel
+    $ make && make install
+
+    The IHK Linux kernel modules, the McKernel image and the reboot scripts
+    should be available under ${TOP}/install.
+
+  Step 5) Boot McKernel
+    Boot McKernel with the following commands:
+
+    $ cd ${TOP}/install
+    $ sudo sbin/mcreboot.sh
+
+    Check McKernel boot log with the following commands:
+    ${TOP}/install/sbin/ihkosctl 0 kmsg|grep "MCK/IHK booted"
+
+  By default, the mcreboot script will take half of the CPU cores and
+  512MB RAM from NUMA node 0, but you can modify it. Note that you
+  need at least two CPU cores in your system.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(3) Usage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+For the instructions to use the McKernel environment, please read the
+HOW_TO_USE.txt under the doc directory.  Several example programs are located
+under the doc/tutorial/sample.
+
+Enjoy,
+	McKernel Development Team

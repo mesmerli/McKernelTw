@@ -1,0 +1,134 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(1) Introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+You can evaluate McKernel by going through the following instructions.
+
+McKernel supports the following two configurations. This guide assumes the
+first confiuration.
+
+1) Running both Linux and McKernel on one or more sockets of Xeon processors.
+   We call this style SMP-x86. Xeon cores and memory are divided into two
+   partitions and Linux runs on one of the partition and McKernel on the
+   other.
+
+2) Running Linux on Xeon processor and running McKernel on Xeon Phi
+   connected via PCI bus. We call this style Attached.
+
+Follow the instructions in README.txt if you are trying to build McKernel
+using the source files obtained through the web site or the USB flash
+memory. No installation is needed if you are trying to use the VM image in
+the USB flash memory. The VM image boots Linux first and you need to login
+to Linux and then boot McKernel. Linux in the VM image has the following
+two users.
+1) "root" with the password being "root"
+2) "postpeta" with the password being "postpeta"
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(2) Set environmental variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Assume ${INSTALL} points to the installation directory specified when
+configuring IHK and McKernel. It is set to "/opt/ppos" if not specified.
+Include ${INSTALL}/bin and ${INSTALL}/sbin in your PATH environment variable.
+
+    PATH=$PATH:${INSTALL}/bin:${INSTALL}/sbin
+    MANPATH=$MANPATH:${INSTALL}/man
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(3) Boot/Reboot McKernel
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Perform the following commands using sudo.
+
+    $ sudo ${INSTALL}/sbin/mcreboot.sh
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(4) Compile and execute sample programs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+"Documentation/tutorial/sample" directory in the USB flash memory or
+"/home/postpeta/sample" directory in the VM image contains sample programs.
+Follow the instructions in README.txt in the directory to run the programs.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(5) Compile your program
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+You can create executable files for McKernel by using the same tool-chain
+avaiable in Linux distribution. You don't need to modify compiler options.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(6) Execute your program
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The mcexec command, invoked on the Linux shell, is used to execute your
+program on McKernel. Here is an example.
+
+    $ mcexec ./a.out <argument>
+
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(7) FAQ
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Q. Can we run "bash" on McKernel ?
+A. Yes.
+
+Q. Can we run "top" or "ps" on Linux to retrieve information of McKernel
+   processes?
+A. Yes. However, some information is incorrect. An McKernel process shares
+   the process id with its corresponding Proxy Process (mcexec). So
+   the command running on Linux can refer to the McKernel process by using
+   the shared process id. However, some information retrieved would be
+   those of "mcexec" because information retrieving mechanism
+   (i.e. /proc and /sys file system) should be modified to provide the
+   information of the McKernel process but it is not fully
+   implemented.
+
+Q. Can we run "top" or "ps" on McKernel to retrieve information of Mckernel
+   processes?
+A. Yes. However, some information is incorrect because these functions
+   are based on the information retrieving mechanism (i.e. /proc and
+   /sys file system) which provides the information of the McKernel
+   process which is not fully implemented.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(8) Trouble shooting
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Q. An error message is shown when booting McKernel.
+A. Reduce the amount of memory reserved for the partition for McKernel by
+   modifying the "mcreboot" script as in the following.
+
+   mem="256M@0"
+
+Q. A OpenMP program hangs.
+A. Intel OpenMP tries to create a monitor thread in addition to the 
+   compute threads and McKernel hangs when trying to oversubscribe cores.
+   So reduce the number of compute threads.
+
+Q. mcreboot.sh fails.
+A. Make sure that SELINUX is disabled.
+
+Q. The same program (e.g. FWQ from ASC Sequoia benchmark) runs faster/slower 
+   on McKernel than Linux.
+A. Set the clock frequency of the machines the same and static on both
+   machines.
+   1) On the machine running only Linux
+      i) Disable Intel Turbo Boost by performing the following.
+
+             $ echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
+
+      ii) Keep the frequencies of all cores to the maximum using the frequency
+          governor mechanism of Linux.
+
+      iii) Use the tickless scheduler by using the "nohz_full=" boot parameter.
+
+   2) On the machine running McKernel
+      i) Disable Intel Turbo Boost by passing "no_turbo" kernel argument
+         to McKernel by modifying the "mcreboot" script as in the following.
+
+         if ! ${SBINDIR}/ihkosctl 0 kargs "hidos no_turbo"; \
+	 then echo "error: setting kernel arguments"; exit; fi
+
+      ii) The frequencies of all cores are automatically kept to the maximum
+          by the McKernel booting code.

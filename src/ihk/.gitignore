@@ -1,0 +1,15 @@
+Makefile
+cokernel/Makefile.common
+config.log
+config.status
+linux/core/Makefile
+linux/core/Makefile.module
+linux/driver/attached/mic/Makefile
+linux/driver/builtin/Makefile
+linux/driver/smp-x86/Makefile
+linux/driver/smp-x86/config.h
+linux/user/Makefile
+linux/user/config.h
+linux/user/ihkconfig.1
+linux/user/ihklib.h
+linux/user/ihkosctl.1

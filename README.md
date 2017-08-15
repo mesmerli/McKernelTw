@@ -42,7 +42,7 @@ ${TOP} variable denotes the "mckerneltw" directory in the followings.
 * Build IHK and McKernel
 For building by yourself you will need to go through the following steps.
 
-1.  Change Linux settings
+### Step 1) Change Linux settings
 In the following instructions, log in as the root user or switch to root 
 user with sudo by typing in a terminal
 
@@ -59,12 +59,12 @@ $ sudo su -
 ```
 change to SELINUX=disabled
 
-2.  Reboot
+### Step 2) Reboot
 Reboot the host machine:
 ```Bash
 $ sudo reboot
 ```
-3.  Prepare packages, kernel function table
+### Step 3) Prepare packages, kernel function table
 * Perform the following if kernel-devel package isn't installed.
 
 For CentOS:
@@ -94,11 +94,11 @@ $ sudo chmod a+r /boot/System.map-`uname -r`
 ```Bash
 $ sudo apt-get install libnuma-dev 
 ```
-4.  Configure, Compile and Install
+### Step 4) Configure, Compile and Install
 Assume the ${TOP} variable denotes the "mckernel-1.2.0" directory.
 Run the following command when doing automatically with our script.
 ```Bash
-    $ config_and_build_smp_x86.sh ${TOP} ${TOP}/build ${TOP}/install
+$ config_and_build_smp_x86.sh ${TOP} ${TOP}/build ${TOP}/install
 ```
 Or follow the following steps when doing manually.
 First, execute the following commands to create the directory
@@ -125,7 +125,7 @@ $ make && make install
 The IHK Linux kernel modules, the McKernel image and the reboot scripts
 should be available under ${TOP}/install.
 
-5.  Boot McKernel
+### Step 5) Boot McKernel
 Boot McKernel with the following commands:
 ```Bash
 $ cd ${TOP}/install

@@ -22,9 +22,9 @@ Platform
 --------
 We have tested McKernel on the following combinations of OS distribution and
 platform:
-   - CentOS 7.2 and 7.3 minimal running on Intel Xeon
-   - CentOS 7.2 and 7.3 minimal running on VMware
-   - Ubuntu 14.04.2 running on Intel Xeon
+* CentOS 7.2 and 7.3 minimal running on Intel Xeon
+* CentOS 7.2 and 7.3 minimal running on VMware
+* Ubuntu 14.04.2 running on Intel Xeon
 
 Installation
 ------------
@@ -32,69 +32,69 @@ CentOS 7.2 / Ubuntu 14.04.2 running on Intel Xeon processor
 Download "mckernel-1.2.6.tar.gz" file and unpack using tar xzf <filename>,
 e.g.
 ```Bash
-    $ wget http://www.pccluster.org/ja/mckernel/mckernel-1.2.6.tar.gz
-    $ tar xzf mckernel-1.2.6.tar.gz
+$ wget http://www.pccluster.org/ja/mckernel/mckernel-1.2.6.tar.gz
+$ tar xzf mckernel-1.2.6.tar.gz
 
-    $ git clone https://github.com/mesmerli/McKernelTw
+$ git clone https://github.com/mesmerli/McKernelTw
 
-    ${TOP} variable denotes the "mckerneltw" directory in the followings.
+${TOP} variable denotes the "mckerneltw" directory in the followings.
 ```
-Build IHK and McKernel:
+* Build IHK and McKernel
 For building by yourself you will need to go through the following steps.
 
-1. Change Linux settings
+1.  Change Linux settings
 In the following instructions, log in as the root user or switch to root 
 user with sudo by typing in a terminal
 
 ```Bash
-    $ sudo su -
+$ sudo su -
 ```
-Disable irqbalance:
+* Disable irqbalance:
 ```Bash
-    # systemctl disable irqbalance
+# systemctl disable irqbalance
 ```
-Disable SELinux:
+* Disable SELinux:
 ```Bash
-    # vi /etc/selinux/config
+# vi /etc/selinux/config
 ```
 change to SELINUX=disabled
 
-2. Reboot
+2.  Reboot
 Reboot the host machine:
 ```Bash
-    $ sudo reboot
+$ sudo reboot
 ```
-3. Prepare packages, kernel function table
-Perform the following if kernel-devel package isn't installed.
+3.  Prepare packages, kernel function table
+* Perform the following if kernel-devel package isn't installed.
 
 For CentOS:
 ```Bash
-    $ sudo yum install kernel-devel-`uname -r`
+$ sudo yum install kernel-devel-`uname -r`
 ```
 For Ubuntu:
 ```Bash
-    $ sudo apt-get install linux-headers-'uname -r'-generic
+$ sudo apt-get install linux-headers-'uname -r'-generic
 ```
-Perform the following if /usr/src/kernels/`uname -r` doesn't exist
+* Perform the following if /usr/src/kernels/`uname -r` doesn't exist
 ```Bash
 $ sudo ln -s /usr/src/kernels/<longer kernel version> \
   /usr/src/kernels/`uname -r`
 ```
-Perform the following to make sure that the
+* Perform the following to make sure that the
 /lib/modules/`uname -r`/build symlink points to /usr/src/kernels/`uname -r`
 ```Bash
-    $ ls -ld /lib/modules/`uname -r`/build
+$ ls -ld /lib/modules/`uname -r`/build
 ```
-Perform the following to grant read permission to the System.map
+* Perform the following to grant read permission to the System.map
 file of your kernel version:
 ```Bash
-    $ sudo chmod a+r /boot/System.map-`uname -r`
+$ sudo chmod a+r /boot/System.map-`uname -r`
 ```
-NUMA library is required
+* NUMA library is required
 ```Bash
-    $ sudo apt-get install libnuma-dev 
+$ sudo apt-get install libnuma-dev 
 ```
-4. Configure, Compile and Install
+4.  Configure, Compile and Install
 Assume the ${TOP} variable denotes the "mckernel-1.2.0" directory.
 Run the following command when doing automatically with our script.
 ```Bash
@@ -104,40 +104,40 @@ Or follow the following steps when doing manually.
 First, execute the following commands to create the directory
 layout.
 ```Bash
-    $ export TOP=${HOME}/mckerneltw
-    $ cd ${TOP}
-    $ mkdir install
+$ export TOP=${HOME}/mckerneltw
+$ cd ${TOP}
+$ mkdir install
 ```
 Second, run the configuration scripts from the source directories:
 ```Bash
-    $ cd ${TOP}/src/ihk
-    $ sudo ./configure --with-target=smp-x86 --prefix=${TOP}/install
-    $ cd ${TOP}/src/mckernel
-    $ sudo ./configure --with-target=smp-x86 --prefix=${TOP}/install
+$ cd ${TOP}/src/ihk
+$ sudo ./configure --with-target=smp-x86 --prefix=${TOP}/install
+$ cd ${TOP}/src/mckernel
+$ sudo ./configure --with-target=smp-x86 --prefix=${TOP}/install
 ```
 Third, compile and install IHK and McKernel:
 ```Bash
-    $ cd ${TOP}/src/ihk
-    $ make && make install
-    $ cd ${TOP}/src/mckernel
-    $ make && make install
+$ cd ${TOP}/src/ihk
+$ make && make install
+$ cd ${TOP}/src/mckernel
+$ make && make install
 ```
 The IHK Linux kernel modules, the McKernel image and the reboot scripts
 should be available under ${TOP}/install.
 
-5. Boot McKernel
+5.  Boot McKernel
 Boot McKernel with the following commands:
 ```Bash
-    $ cd ${TOP}/install
-    $ sudo sbin/mcreboot.sh
+$ cd ${TOP}/install
+$ sudo sbin/mcreboot.sh
 ```
 Check McKernel boot log with the following commands:
 ```Bash
-    ${TOP}/install/sbin/ihkosctl 0 kmsg|grep "MCK/IHK booted"
+${TOP}/install/sbin/ihkosctl 0 kmsg|grep "MCK/IHK booted"
 ```
-  By default, the mcreboot script will take half of the CPU cores and
-  512MB RAM from NUMA node 0, but you can modify it. Note that you
-  need at least two CPU cores in your system.
+By default, the mcreboot script will take half of the CPU cores and
+512MB RAM from NUMA node 0, but you can modify it. Note that you
+need at least two CPU cores in your system.
 
 Usage
 -----

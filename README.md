@@ -35,7 +35,7 @@ e.g.
 $ wget http://www.pccluster.org/ja/mckernel/mckernel-1.2.6.tar.gz
 $ tar xzf mckernel-1.2.6.tar.gz
 ```
-Or via git
+Or via git:
 ```Bash
 $ git clone https://github.com/mesmerli/McKernelTw
 ```
@@ -45,17 +45,17 @@ ${TOP} variable denotes the "mckerneltw" directory in the followings.
 For building by yourself you will need to go through the following steps.
 
 **Step 1) Change Linux settings**
+
 In the following instructions, log in as the root user or switch to root 
 user with sudo by typing in a terminal
-
 ```Bash
 $ sudo su -
 ```
-* Disable irqbalance:
+Disable irqbalance:
 ```Bash
 # systemctl disable irqbalance
 ```
-* Disable SELinux:
+Disable SELinux:
 ```Bash
 # vi /etc/selinux/config
 ```
@@ -67,7 +67,8 @@ Reboot the host machine:
 $ sudo reboot
 ```
 **Step 3) Prepare packages, kernel function table**
-* Perform the following if kernel-devel package isn't installed.
+
+Perform the following if kernel-devel package isn't installed.
 
 For CentOS:
 ```Bash
@@ -77,26 +78,27 @@ For Ubuntu:
 ```Bash
 $ sudo apt-get install linux-headers-'uname -r'-generic
 ```
-* Perform the following if /usr/src/kernels/`uname -r` doesn't exist
+Perform the following if /usr/src/kernels/\`uname -r\` doesn't exist
 ```Bash
 $ sudo ln -s /usr/src/kernels/<longer kernel version> \
   /usr/src/kernels/`uname -r`
 ```
-* Perform the following to make sure that the
-/lib/modules/`uname -r`/build symlink points to /usr/src/kernels/`uname -r`
+Perform the following to make sure that the
+/lib/modules/\`uname -r\`/build symlink points to /usr/src/kernels/\`uname -r\`
 ```Bash
 $ ls -ld /lib/modules/`uname -r`/build
 ```
-* Perform the following to grant read permission to the System.map
+Perform the following to grant read permission to the System.map
 file of your kernel version:
 ```Bash
 $ sudo chmod a+r /boot/System.map-`uname -r`
 ```
-* NUMA library is required
+NUMA library is required
 ```Bash
 $ sudo apt-get install libnuma-dev 
 ```
 **Step 4) Configure, Compile and Install**
+
 Assume the ${TOP} variable denotes the "mckernel-1.2.0" directory.
 Run the following command when doing automatically with our script.
 ```Bash
@@ -128,6 +130,7 @@ The IHK Linux kernel modules, the McKernel image and the reboot scripts
 should be available under ${TOP}/install.
 
 **Step 5) Boot McKernel**
+
 Boot McKernel with the following commands:
 ```Bash
 $ cd ${TOP}/install

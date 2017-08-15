@@ -37,7 +37,7 @@ $ tar xzf mckernel-1.2.6.tar.gz
 ```
 Or via git:
 ```Bash
-$ git clone https://github.com/mesmerli/McKernelTw
+$ git clone https://github.com/mesmerli/mckerneltw
 ```
 ${TOP} variable denotes the "mckerneltw" directory in the followings.
 
@@ -53,11 +53,11 @@ $ sudo su -
 ```
 Disable irqbalance:
 ```Bash
-# systemctl disable irqbalance
+$ systemctl disable irqbalance
 ```
 Disable SELinux:
 ```Bash
-# vi /etc/selinux/config
+$ vi /etc/selinux/config
 ```
 change to SELINUX=disabled
 
@@ -138,7 +138,7 @@ $ sudo sbin/mcreboot.sh
 ```
 Check McKernel boot log with the following commands:
 ```Bash
-${TOP}/install/sbin/ihkosctl 0 kmsg|grep "MCK/IHK booted"
+$ {TOP}/install/sbin/ihkosctl 0 kmsg|grep "MCK/IHK booted"
 ```
 By default, the mcreboot script will take half of the CPU cores and
 512MB RAM from NUMA node 0, but you can modify it. Note that you
